@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
+#include <omp.h>
 
 #include "primitives.h"
 #include "raytracing.h"
 
 #define OUT_FILENAME "out.ppm"
+#define EXETIME_FILENAME "exec_time.txt"
 
 #define ROWS 512
 #define COLS 512
@@ -63,6 +65,13 @@ int main()
     delete_light_list(&lights);
     free(pixels);
     printf("Done!\n");
-    printf("Execution time of raytracing() : %lf sec\n", diff_in_second(start, end));
+    const double elapsed_time = diff_in_second(start , end);
+    {
+        //write time into file for gnuplot
+        FILE* outfile = fopen(EXETIME_FILENAME , "a+");
+        fprintf(outfile ,"%lf ", elapsed_time);
+        fclose(outfile);
+    }
+    printf("Execution time of raytracing() : %lf sec\n", elapsed_time);
     return 0;
 }
