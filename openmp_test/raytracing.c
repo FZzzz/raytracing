@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 
 #include "math-toolkit.h"
 #include "primitives.h"
@@ -53,13 +54,13 @@ static int rayRectangularIntersection(const point3 ray_e,
                                       intersection *ip, double *t1)
 {
     point3 e01, e03, p;
+
     subtract_vector(rec->vertices[1], rec->vertices[0], e01);
     subtract_vector(rec->vertices[3], rec->vertices[0], e03);
-
+    
     cross_product(ray_d, e03, p);
-
-    double det = dot_product(e01, p);
-
+    
+    double det = dot_product(e01 , p); 
     /* Reject rays orthagonal to the normal vector.
      * I.e. rays parallell to the plane.
      */
@@ -169,12 +170,10 @@ static void compute_specular_diffuse(double *diffuse,
     COPY_POINT3(d_copy, d);
     multiply_vector(d_copy, -1, d_copy);
     normalize(d_copy);
-
     /* Calculate vector to light L */
     COPY_POINT3(l_copy, l);
     multiply_vector(l_copy, -1, l_copy);
     normalize(l_copy);
-
     /* Calculate reflection direction R */
     double tmp = dot_product(n, l_copy);
     multiply_vector(n, tmp, middle);
@@ -467,6 +466,8 @@ void raytracing(uint8_t *pixels, color background_color,
     idx_stack stk;
 
     int factor = sqrt(SAMPLES);
+
+    #pragma omp parallel for num_threads(16) , private(stk) , private(d) , private(object_color)
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
             double r = 0, g = 0, b = 0;
