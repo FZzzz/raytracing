@@ -74,12 +74,11 @@ double dot_product(const double *v1, const double *v2)
     reg1 = _mm256_set_pd(0.0 ,v1[2] , v1[1] , v1[0]);
     reg2 = _mm256_set_pd(0.0 ,v2[2] , v2[1] , v2[0]);
     
-    out_reg = _mm256_shuffle_pd(reg1 , reg2 , _MM_SHUFFLE(0,1,2,3));
+    out_reg = _mm256_mul_pd(reg1 , reg2);
 
     _mm256_store_pd(tmp , out_reg);
     
     return tmp[0]+tmp[1]+tmp[2];
-    //return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
 }
 
 static inline
